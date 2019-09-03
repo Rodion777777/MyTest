@@ -24,8 +24,6 @@ public class RGSTest {
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         driver.manage().timeouts().setScriptTimeout(10, TimeUnit.SECONDS);
 
-
-
     }
 
     @Test
@@ -77,9 +75,5 @@ public class RGSTest {
         driver.quit();
     }
 
-    private void fillField(By locator, String value){
-        driver.findElement(locator).clear();
-        driver.findElement(locator).sendKeys(value);
 
-    }
 }
