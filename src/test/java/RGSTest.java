@@ -8,6 +8,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.Select;
 
 import java.util.Arrays;
@@ -18,8 +20,10 @@ import static junit.framework.TestCase.assertEquals;
 
 @RunWith(Parameterized.class)
 public class RGSTest {
+
     private static WebDriver driver;
     private static String baseUrl = "https://www.rgs.ru/";
+
 
     WebElement checkBoxElement = driver.findElement(By.xpath("//input[@class='checkbox']"));
     WebElement firstNameElement = driver.findElement(By.xpath("//input[@name='FirstName']"));
@@ -30,6 +34,9 @@ public class RGSTest {
     WebElement emailElement = driver.findElement(By.xpath("//input[@name='Email']"));
     WebElement commentElement = driver.findElement(By.xpath("//textarea[@name='Comment']"));
     WebElement phoneElement = driver.findElement(By.xpath("//div[5]//input[1]"));
+
+    @FindBy(xpath = "//span[.='Введите адрес электронной почты']")
+    private WebElement errorEmailElement;
 
     public void fillPhone(String phone) {
         phoneElement.clear();
@@ -87,6 +94,7 @@ public class RGSTest {
 
         driver.get(baseUrl);
 
+
         driver.findElement(By.xpath("//a[@class = 'hidden-xs' and contains(text(), 'Меню')]")).click();
         driver.findElement(By.xpath("//div[@class='grid rgs-main-menu-links']//a[contains(.,'ДМС')]")).click();
         assertEquals("Ожидаемый текст \"Добровольное медицинское страхование\" не совпадает с фактическим",
@@ -116,8 +124,9 @@ public class RGSTest {
     public String middleName;
 
     @Test(timeout = 60000)
-    public void checkTitleTest() {
 
+    public void checkTitleTest() {
+        RGSTest rgsTest = PageFactory.initElements(driver, RGSTest.class);
         fillLastName(lastName);
         fillFirstName(firstName);
         fillMiddleName(middleName);
@@ -136,7 +145,7 @@ public class RGSTest {
         assertEquals("Номера телефонов не совпадают", "+7 (123) 456-78-91", phoneElement.getAttribute("value"));
         assertEquals("Электронные почты не совпадают", "qwertyqwerty", emailElement.getAttribute("value"));
         assertEquals("Комментарии не совпадают", "Привет мир!", commentElement.getAttribute("value"));
-        assertEquals("У Поля Эл. почта не присутствует сообщение об ошибке Введите корректный email", "Введите адрес электронной почты",  driver.findElement(By.xpath("//span[.='Введите адрес электронной почты']")).getAttribute("innerText"));
+        assertEquals("У Поля Эл. почта не присутствует сообщение об ошибке Введите корректный email", "Введите адрес электронной почты",  rgsTest.errorEmailElement.getAttribute("innerText"));
     }
 
     @AfterClass
