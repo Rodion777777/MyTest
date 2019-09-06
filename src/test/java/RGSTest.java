@@ -21,6 +21,51 @@ public class RGSTest {
     private static WebDriver driver;
     private static String baseUrl = "https://www.rgs.ru/";
 
+    WebElement checkBoxElement = driver.findElement(By.xpath("//input[@class='checkbox']"));
+    WebElement firstNameElement = driver.findElement(By.xpath("//input[@name='FirstName']"));
+    WebElement lastNameElement = driver.findElement(By.xpath("//input[@name='LastName']"));
+    WebElement regionElement = driver.findElement(By.xpath("//select[@name='Region']"));
+    Select select = new Select(regionElement);
+    WebElement middleNameElement = driver.findElement(By.xpath("//input[@name='MiddleName']"));
+    WebElement emailElement = driver.findElement(By.xpath("//input[@name='Email']"));
+    WebElement commentElement = driver.findElement(By.xpath("//textarea[@name='Comment']"));
+    WebElement phoneElement = driver.findElement(By.xpath("//div[5]//input[1]"));
+
+    public void fillPhone(String phone) {
+        phoneElement.clear();
+        phoneElement.sendKeys(phone);
+    }
+
+    public void fillComment(String comment) {
+        commentElement.clear();
+        commentElement.sendKeys(comment);
+    }
+
+    public void fillEmail(String email) {
+        emailElement.clear();
+        emailElement.sendKeys(email);
+    }
+
+    public void fillMiddleName(String middleName) {
+        middleNameElement.clear();
+        middleNameElement.sendKeys(middleName);
+    }
+
+    public void fillLastName(String lastName) {
+        lastNameElement.clear();
+        lastNameElement.sendKeys(lastName);
+    }
+
+    public void fillFirstName(String firstName) {
+        firstNameElement.clear();
+        firstNameElement.sendKeys(firstName);
+    }
+
+
+    public void checkBoxClick() {
+        checkBoxElement.click();
+    }
+
 
     @BeforeClass
     public static void setUp() throws Exception {
@@ -35,8 +80,6 @@ public class RGSTest {
         if (System.getProperty("driver").equals("firefox")) {
             driver = new FirefoxDriver();
         }
-        else System.out.println("Введите \"mvn clean test -Ddriver=firefox\" или \"mvn clean test -Ddriver=chrome\"," +
-                " чтобы выбрать необходимый веб-драйвер.");
 
         driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(50, TimeUnit.SECONDS);
@@ -44,11 +87,12 @@ public class RGSTest {
 
         driver.get(baseUrl);
 
-        driver.findElement(By.xpath("//body/div[@id='main-navbar']/div[@class='container-navbar-rgs']/div[@id='main-navbar-collapse']/ol[@class='nav navbar-nav navbar-nav-rgs-menu pull-left']/li[@class='dropdown adv-analytics-navigation-line1-link current']/a[1]")).click();
-        driver.findElement(By.xpath("//div[@class='grid rgs-main-menu-links']//div[1]//div[2]//ul[1]//li[2]//a[1]")).click();
-        driver.findElement(By.xpath("//p[1]//strong[text() = 'Добровольное медицинское страхование']"));
-        driver.findElement(By.xpath("//*[@class='btn btn-default text-uppercase hidden-xs adv-analytics-navigation-desktop-floating-menu-button'][contains(text(), 'Отправить заявку')]")).click();
-        driver.findElement(By.xpath("//h4[@class='modal-title']//b[text() = 'Заявка на добровольное медицинское страхование']"));
+        driver.findElement(By.xpath("//a[@class = 'hidden-xs' and contains(text(), 'Меню')]")).click();
+        driver.findElement(By.xpath("//div[@class='grid rgs-main-menu-links']//a[contains(.,'ДМС')]")).click();
+        assertEquals("Ожидаемый текст \"Добровольное медицинское страхование\" не совпадает с фактическим",
+                "Добровольное медицинское страхование", driver.findElement(By.xpath("//p[1]//strong[1]"))
+                        .getText());
+        driver.findElement(By.xpath("//a[contains(.,'Отправить заявку')]")).click();
 
     }
 
@@ -72,36 +116,27 @@ public class RGSTest {
     public String middleName;
 
     @Test(timeout = 60000)
-    public void checkTitleTest(){
+    public void checkTitleTest() {
 
-        driver.findElement(By.xpath("//input[@name='LastName']")).clear();
-        driver.findElement(By.xpath("//input[@name='FirstName']")).clear();
-        driver.findElement(By.xpath("//input[@name='MiddleName']")).clear();
-        driver.findElement(By.xpath("//input[@name='Email']")).clear();
-        driver.findElement(By.xpath("//textarea[@name='Comment']")).clear();
-
-        driver.findElement(By.xpath("//input[@name='LastName']")).sendKeys(lastName);
-        driver.findElement(By.xpath("//input[@name='FirstName']")).sendKeys(firstName);
-        driver.findElement(By.xpath("//input[@name='MiddleName']")).sendKeys(middleName);
-        WebElement dropdown = driver.findElement(By.xpath("//select[@name='Region']"));
-        Select select = new Select(dropdown);
+        fillLastName(lastName);
+        fillFirstName(firstName);
+        fillMiddleName(middleName);
+        fillEmail("qwertyqwerty");
+        fillComment("Привет мир!");
         select.selectByVisibleText("Владимирская область");
-//        driver.findElement(By.xpath("//select[@name='Region']")).sendKeys("Владимирская область");
-        driver.findElement(By.xpath("//div[5]//input[1]")).sendKeys("1234567891");
-        driver.findElement(By.xpath("//input[@name='Email']")).sendKeys("qwertyqwerty");
-        driver.findElement(By.xpath("//textarea[@name='Comment']")).sendKeys("Привет мир!");
+        fillPhone("1234567891");
+        if (!checkBoxElement.isSelected()){
+            checkBoxClick();}
 
 
-        assertEquals("Фамилии не совпадают", lastName, driver.findElement(By.xpath("//input[@name='LastName']")).getAttribute("value"));
-        assertEquals("Имена не совпадают", firstName, driver.findElement(By.xpath("//input[@name='FirstName']")).getAttribute("value"));
-        assertEquals("Отчества не совпадают", middleName, driver.findElement(By.xpath("//input[@name='MiddleName']")).getAttribute("value"));
-        assertEquals("Регионы не совпадают", "33", driver.findElement(By.xpath("//select[@name='Region']")).getAttribute("value"));
-        assertEquals("Номера телефонов не совпадают", "+7 (123) 456-78-91", driver.findElement(By.xpath("//div[5]//input[1]")).getAttribute("value"));
-        assertEquals("Электронные почты не совпадают", "qwertyqwerty", driver.findElement(By.xpath("//input[@name='Email']")).getAttribute("value"));
-        assertEquals("Комментарии не совпадают", "Привет мир!", driver.findElement(By.xpath("//textarea[@name='Comment']")).getAttribute("value"));
-
-
-
+        assertEquals("Фамилии не совпадают", lastName, lastNameElement.getAttribute("value"));
+        assertEquals("Имена не совпадают", firstName, firstNameElement.getAttribute("value"));
+        assertEquals("Отчества не совпадают", middleName, middleNameElement.getAttribute("value"));
+        assertEquals("Регионы не совпадают", "33", regionElement.getAttribute("value"));
+        assertEquals("Номера телефонов не совпадают", "+7 (123) 456-78-91", phoneElement.getAttribute("value"));
+        assertEquals("Электронные почты не совпадают", "qwertyqwerty", emailElement.getAttribute("value"));
+        assertEquals("Комментарии не совпадают", "Привет мир!", commentElement.getAttribute("value"));
+        assertEquals("У Поля Эл. почта не присутствует сообщение об ошибке Введите корректный email", "Введите адрес электронной почты",  driver.findElement(By.xpath("//span[.='Введите адрес электронной почты']")).getAttribute("innerText"));
     }
 
     @AfterClass
